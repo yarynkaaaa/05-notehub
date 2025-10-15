@@ -7,7 +7,7 @@ import Modal from "../Modal/Modal";
 import NoteForm from "../NoteForm/NoteForm";
 import NoteList from "../NoteList/NoteList";
 import SearchBox from "../SearchBox/SearchBox";
-import { fetchNotes, createNote, deleteNote, type CreateNoteParams } from "../../services/noteService";
+import { fetchNotes, createNote, type CreateNoteParams } from "../../services/noteService";
 
 export default function App() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -39,24 +39,15 @@ export default function App() {
     },
   });
 
-  const deleteNoteMutation = useMutation({
-    mutationFn: deleteNote,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["notes"] }),
-  });
-
   const notes = data?.items || [];
 
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page);
-  };
-
+  const handlePageChange = (page: number) => setCurrentPage(page);
   const handleSearchChange = (value: string) => {
     setSearchValue(value);
     setCurrentPage(1);
   };
 
-  const handleCreateNote = (values: CreateNoteParams) => createNoteMutation.mutate(values);
-  const handleDeleteNote = (id: string) => deleteNoteMutation.mutate(id);
+  
 
   return (
     <div className={css.app}>
@@ -80,14 +71,15 @@ export default function App() {
       {isError && <p>Помилка завантаження нотаток</p>}
 
       {notes.length > 0 ? (
-        <NoteList notes={notes} onDelete={handleDeleteNote} />
+        <NoteList notes={notes} />
       ) : (
         !isLoading && <p>Нотаток не знайдено. Створіть нову нотатку!</p>
       )}
 
       {isModalOpen && (
         <Modal onClose={() => setIsModalOpen(false)}>
-          <NoteForm onSubmit={handleCreateNote} onCancel={() => setIsModalOpen(false)} />
+          <NoteForm onCancel={() => setIsModalOpen(false)} />
+
         </Modal>
       )}
     </div>
