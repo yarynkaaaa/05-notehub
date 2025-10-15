@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useQuery, useMutation, useQueryClient, keepPreviousData } from "@tanstack/react-query";
+import { useQuery,  keepPreviousData } from "@tanstack/react-query";
 import { useDebounce } from "use-debounce";
 import css from "./App.module.css";
 import Pagination from "../Pagination/Pagination";
@@ -7,7 +7,7 @@ import Modal from "../Modal/Modal";
 import NoteForm from "../NoteForm/NoteForm";
 import NoteList from "../NoteList/NoteList";
 import SearchBox from "../SearchBox/SearchBox";
-import { fetchNotes, createNote, type CreateNoteParams } from "../../services/noteService";
+import { fetchNotes } from "../../services/noteService";
 
 export default function App() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -15,7 +15,7 @@ export default function App() {
   const [pageCount, setPageCount] = useState(0);
   const [searchValue, setSearchValue] = useState("");
   const [debouncedSearch] = useDebounce(searchValue, 500);
-  const queryClient = useQueryClient();
+
   const perPage = 12;
 
   const { data, isLoading, isError } = useQuery({
@@ -30,15 +30,6 @@ export default function App() {
     }
   }, [data]);
 
-  const createNoteMutation = useMutation({
-    mutationFn: createNote,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["notes"] });
-      setIsModalOpen(false);
-      setCurrentPage(1);
-    },
-  });
-
   const notes = data?.items || [];
 
   const handlePageChange = (page: number) => setCurrentPage(page);
@@ -46,8 +37,6 @@ export default function App() {
     setSearchValue(value);
     setCurrentPage(1);
   };
-
-  
 
   return (
     <div className={css.app}>
@@ -79,7 +68,6 @@ export default function App() {
       {isModalOpen && (
         <Modal onClose={() => setIsModalOpen(false)}>
           <NoteForm onCancel={() => setIsModalOpen(false)} />
-
         </Modal>
       )}
     </div>
